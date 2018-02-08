@@ -3,10 +3,11 @@
 namespace app\modules\User\controllers;
 
 use Yii;
+use app\controllers\FrontController;
 use app\modules\User\urls\UserUrl;
 use app\modules\User\forms\LoginForm;
 
-class LoginController extends \app\controllers\FrontController
+class LoginController extends FrontController
 {
 
     public function actionIndex()

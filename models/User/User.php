@@ -22,6 +22,7 @@ use yii\behaviors\TimestampBehavior;
  * @property string $Status
  * 
  * @property string $username - user email or nickname
+ * @property string $nicknameWithName - user nickname with user first and last name
  */
 class User extends \yii\db\ActiveRecord
 {
@@ -111,6 +112,11 @@ class User extends \yii\db\ActiveRecord
             return false;
         }
         return parent::beforeDelete();
+    }
+    
+    public function getNicknameWithName()
+    {
+        return sprintf('@%s - %s %s', $this->NickName, $this->FirstName, $this->LastName);
     }
 
 }

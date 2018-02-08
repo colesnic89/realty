@@ -6,6 +6,9 @@ use app\components\Html\Html;
 use app\components\Date\DateHelper;
 use app\components\GridView\GridView;
 use app\models\Object\ObjectStatusEnum;
+use app\components\Money\CurrencyEnum;
+use app\components\Money\PriceConverter;
+use app\modules\User\widgets\UserDropdownWidget;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\models\Object\ObjectSearch */
@@ -14,11 +17,12 @@ use app\models\Object\ObjectStatusEnum;
 $this->title = Yii::t('app', 'Objects');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="object-index">
-    
-    <p>
-        <?= Html::createLink(Yii::t('app', 'Create object'), ['create']) ?>
-    </p>
+
+<p class="white-block">
+    <?= Html::createLink(Yii::t('app', 'Create object'), ['create']) ?>
+</p>
+
+<div class="object-index white-block">
 
     <?php Pjax::begin(); ?>
 
@@ -32,7 +36,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 'Title',
                 [
                     'attribute' => 'Price',
-                    'filter' => Html::activeInput('number', $searchModel, 'Price', ['class' => 'form-control']),
+                    'value' => function($model) {
+                        /* @var $model \app\models\Object\Object */
+                        return PriceConverter::format($model->Price) . ' ' . CurrencyEnum::getName($model->Currency);
+                    },
+                    'filter' => '',
                 ],
                 [
                     'attribute' => 'CreatedAt',
@@ -49,6 +57,11 @@ $this->params['breadcrumbs'][] = $this->title;
                     'value' => function($model) {
                         return $model->createdBy->username;
                     },
+                    'filter' => UserDropdownWidget::widget([
+                        'model' => $searchModel,
+                        'attribute' => 'CreatedBy',
+                        'data' => [$searchModel->CreatedBy => $searchModel->selectedNicknameWithName],
+                    ]),
                 ],
                 [
                     'attribute' => 'Status',
@@ -63,4 +76,5 @@ $this->params['breadcrumbs'][] = $this->title;
         ]); ?>
     
     <?php Pjax::end(); ?>
+    
 </div>

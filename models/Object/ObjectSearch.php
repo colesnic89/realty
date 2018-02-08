@@ -5,12 +5,16 @@ namespace app\models\Object;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\Object\Object;
+use app\models\User\User;
 
 /**
  * ObjectSearch represents the model behind the search form of `app\models\Object\Object`.
  */
 class ObjectSearch extends Object
 {
+    
+    public $selectedNicknameWithName;
+
     /**
      * @inheritdoc
      */
@@ -52,9 +56,13 @@ class ObjectSearch extends Object
         // grid filtering conditions
         $query->andFilterWhere([
             'Price' => $this->Price,
-            'CreatedBy' => $this->CreatedBy,
             'Status' => $this->Status,
         ]);
+        
+        if ($this->createdBy) {
+            $query->andFilterWhere(['CreatedBy' => $this->CreatedBy]);
+            $this->selectedNicknameWithName = User::findOne($this->CreatedBy)->nicknameWithName;
+        }
         
         $query->andFilterWhere(['like', 'Title', $this->Title]);
         

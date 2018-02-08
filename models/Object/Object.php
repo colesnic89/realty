@@ -9,12 +9,14 @@ use app\models\ObjectCategory\ObjectCategory;
 use yii\behaviors\TimestampBehavior;
 use yii\behaviors\BlameableBehavior;
 use app\models\Object\ObjectStatusEnum;
+use app\models\ObjectImage\ObjectImage;
 
 /**
  * This is the model class for table "Object".
  *
  * @property int $ID
  * @property string $Price
+ * @property string $Currency
  * @property string $Title
  * @property string $Description
  * @property int $IsMortgage
@@ -24,6 +26,7 @@ use app\models\Object\ObjectStatusEnum;
  *
  * @property User $createdBy
  * @property ObjectCategory[] $objectCategories
+ * @property ObjectImage[] $objectImages
  */
 class Object extends \yii\db\ActiveRecord
 {
@@ -58,8 +61,9 @@ class Object extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['Price', 'Title', 'Status'], 'required'],
+            [['Price', 'Currency', 'Title', 'Status'], 'required'],
             [['Price'], 'number'],
+            [['Currency'], 'string', 'max' => 3],
             [['Description'], 'string'],
             [['IsMortgage'], 'default', 'value' => 0],
             [['IsMortgage', 'CreatedBy'], 'integer'],
@@ -102,6 +106,14 @@ class Object extends \yii\db\ActiveRecord
     public function getObjectCategories()
     {
         return $this->hasMany(ObjectCategory::className(), ['ObjectID' => 'ID']);
+    }
+    
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getObjectImages()
+    {
+        return $this->hasMany(ObjectImage::className(), ['ObjectID' => 'ID']);
     }
 
     /**

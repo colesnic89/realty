@@ -6,6 +6,9 @@ use Yii;
 use app\models\Object\Object;
 use app\models\Object\ObjectSearch;
 use yii\web\NotFoundHttpException;
+use yii\imagine\Image;
+use yii\helpers\FileHelper;
+use yii\web\UploadedFile;
 use app\modules\Admin\controllers\AdminController;
 
 /**
@@ -92,6 +95,40 @@ class ObjectController extends AdminController
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+    
+    public function actionUploadImages($objectID)
+    {
+        $uploads = UploadedFile::getInstancesByName('images');
+        
+        if (count($uploads)) {
+            foreach ($uploads as $tempImage)
+            {
+                try {
+                    $tempImagePath = Yii::getAlias('@webroot/uploads/temp/' . uniqid() . '.' . $tempImage->extension);
+                    $tempImage->saveAs($tempImagePath);
+
+                    $imageLargeObj = Image::getImagine()->open($tempImagePath);
+                    $imageLargeObj->resize($imageLargeObj->getSize()->widen(1200));
+                    $imageLargePath = Yii::getAlias('@webroot/uploads/objects/' . uniqid('large_') . '.' . $tempImage->extension);
+                    $imageLargeObj->save($imageLargePath);
+
+                    $imageMedium = Image::thumbnail($tempImagePath, 400, 400);
+                    $imageMediumPath = Yii::getAlias('@webroot/uploads/objects/' . uniqid('medium_') . '.' . $tempImage->extension);
+                    $imageMedium->save($imageMediumPath);
+
+                    $imageSmall = Image::thumbnail($tempImagePath, 120, 120);
+                    $imageSmallPath = Yii::getAlias('@webroot/uploads/objects/' . uniqid('small_') . '.' . $tempImage->extension);
+                    $imageSmall->save($imageSmallPath);
+
+                    FileHelper::unlink($tempImagePath);
+                } catch (Exception $ex) {}
+            }
+        }
+        
+        $output = array('uploaded' => 'OK' );
+        
+        exit(json_encode($output));
     }
 
     /**

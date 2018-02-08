@@ -2,8 +2,7 @@
 
 use app\components\Html\Html;
 use yii\widgets\ActiveForm;
-use app\components\Html\MaskMoney;
-use dlds\summernote\SummernoteWidget;
+use yii\bootstrap\Tabs;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Object\Object */
@@ -13,19 +12,27 @@ use dlds\summernote\SummernoteWidget;
 <div class="object-form white-block">
 
     <?php $form = ActiveForm::begin(); ?>
-
-    <?= $form->field($model, 'Title')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'Description')->widget(SummernoteWidget::class) ?>
     
-    <div class="row">
-        <div class="col-md-6">
-            <?= $form->field($model, 'Price')->widget(MaskMoney::class) ?>
-        </div>
-        <div class="col-md-6">
-            <?= $form->field($model, 'IsMortgage')->textInput() ?>
-        </div>
-    </div>
+    <?= Tabs::widget([
+        'items' => [
+            [
+                'label' => Yii::t('app', 'Main information'),
+                'content' => $this->render('_main_form', [
+                    'model' => $model,
+                    'form' => $form,
+                ]),
+            ],
+            [
+                'label' => Yii::t('app', 'Images'),
+                'content' => $this->render('_images_form', [
+                    'model' => $model,
+                    'form' => $form,
+                    'initialImagesPreview' => $initialImagePreview,
+                    'initialImagesPreviewConfig' => $initialImagesPreviewConfig,
+                ]),
+            ],
+        ]
+    ]) ?>
 
     <div class="form-group">
         <?= Html::saveSubmitButton(Yii::t('app', 'Save'), ['class' => 'btn btn-success']) ?>

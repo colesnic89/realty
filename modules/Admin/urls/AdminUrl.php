@@ -29,5 +29,10 @@ class AdminUrl extends Url
     {
         return self::toRoute(['/admin/object']);
     }
+    
+    public static function getUserSearchUrl()
+    {
+        return self::toRoute(['/user/user-search/admin-search']);
+    }
 
 }

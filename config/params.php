@@ -20,10 +20,10 @@ return [
     
     // kartik mask money settings
     'maskMoneyOptions' => [
-        'prefix' => '$ ',
+        'prefix' => '',
         'suffix' => '',
-        'affixesStay' => true,
-        'thousands' => ' ',
+        'affixesStay' => false,
+        'thousands' => '',
         'decimal' => '.',
         'precision' => 2, 
         'allowZero' => false,
