@@ -71,7 +71,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'filter' => Html::activeDropDownList($searchModel, 'Status', ObjectStatusEnum::getList(false, '-'), ['class' => 'form-control']),
                 ],
                 
-                ['class' => 'yii\grid\ActionColumn'],
+                ['class' => 'app\components\GridView\ActionColumn'],
             ],
         ]); ?>
     

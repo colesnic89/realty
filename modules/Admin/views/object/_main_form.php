@@ -3,6 +3,7 @@
 use dlds\summernote\SummernoteWidget;
 use app\components\Money\CurrencyEnum;
 use kartik\checkbox\CheckboxX;
+use app\models\Object\ObjectStatusEnum;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Object\Object */
@@ -23,6 +24,9 @@ use kartik\checkbox\CheckboxX;
                 <?= $form->field($model, 'Currency')->dropDownList(CurrencyEnum::getList()) ?>
             </div>
         </div>
+    </div>
+    <div class="col-md-6">
+        <?= $form->field($model, 'Status')->dropDownList(ObjectStatusEnum::getList()) ?>
     </div>
 </div>
 

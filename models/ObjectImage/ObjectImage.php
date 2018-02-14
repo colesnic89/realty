@@ -16,6 +16,7 @@ use app\models\Object\Object;
  * @property int $IsMain
  *
  * @property Object $object
+ * @property string $mediumPath
  */
 class ObjectImage extends \yii\db\ActiveRecord
 {
@@ -72,4 +73,5 @@ class ObjectImage extends \yii\db\ActiveRecord
     {
         return new ObjectImageQuery(get_called_class());
     }
+    
 }

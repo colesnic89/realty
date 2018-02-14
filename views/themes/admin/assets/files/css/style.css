@@ -8079,3 +8079,7 @@ body {
     font-size: 13px !important;
     top: 0 !important;
 }
+
+table.kv-grid-table tr td {
+    vertical-align: middle;
+}

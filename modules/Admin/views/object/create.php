@@ -14,6 +14,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $this->render('_form', [
         'model' => $model,
+        'initialImagesPreview' => $initialImagesPreview,
+        'initialImagesPreviewConfig' => $initialImagesPreviewConfig,
     ]) ?>
 
 </div>

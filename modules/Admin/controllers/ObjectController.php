@@ -10,6 +10,8 @@ use yii\imagine\Image;
 use yii\helpers\FileHelper;
 use yii\web\UploadedFile;
 use app\modules\Admin\controllers\AdminController;
+use app\models\ObjectImage\ObjectImage;
+use yii\helpers\Url;
 
 /**
  * ObjectController implements the CRUD actions for Object model.
@@ -55,11 +57,13 @@ class ObjectController extends AdminController
         $model = new Object();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->ID]);
+            return $this->redirect(['update', 'id' => $model->ID]);
         }
 
         return $this->render('create', [
             'model' => $model,
+            'initialImagesPreview' => [],
+            'initialImagesPreviewConfig' => [],
         ]);
     }
 
@@ -75,11 +79,19 @@ class ObjectController extends AdminController
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->ID]);
+            return $this->redirect(['update', 'id' => $model->ID]);
+        }
+        
+        $initialImagesPreview = [];
+        $initialImagesPreviewConfig = [];
+        foreach ($model->objectImages as $image) {
+            $initialImagesPreview[] = Url::to("@web/uploads/objects/{$image->Medium}", true);
         }
 
         return $this->render('update', [
             'model' => $model,
+            'initialImagesPreview' => $initialImagesPreview,
+            'initialImagesPreviewConfig' => $initialImagesPreviewConfig,
         ]);
     }
 
@@ -102,33 +114,65 @@ class ObjectController extends AdminController
         $uploads = UploadedFile::getInstancesByName('images');
         
         if (count($uploads)) {
+            $images = [];
             foreach ($uploads as $tempImage)
             {
                 try {
-                    $tempImagePath = Yii::getAlias('@webroot/uploads/temp/' . uniqid() . '.' . $tempImage->extension);
+                    $uniqID = uniqid();
+                    
+                    $tempImagePath = Yii::getAlias("@webroot/uploads/temp/{$uniqID}.{$tempImage->extension}");
                     $tempImage->saveAs($tempImagePath);
 
                     $imageLargeObj = Image::getImagine()->open($tempImagePath);
                     $imageLargeObj->resize($imageLargeObj->getSize()->widen(1200));
-                    $imageLargePath = Yii::getAlias('@webroot/uploads/objects/' . uniqid('large_') . '.' . $tempImage->extension);
+                    $imageLargeName = "large_{$uniqID}.{$tempImage->extension}";
+                    $imageLargePath = Yii::getAlias("@webroot/uploads/objects/{$imageLargeName}");
                     $imageLargeObj->save($imageLargePath);
 
                     $imageMedium = Image::thumbnail($tempImagePath, 400, 400);
-                    $imageMediumPath = Yii::getAlias('@webroot/uploads/objects/' . uniqid('medium_') . '.' . $tempImage->extension);
+                    $imageMediumName = "medium_{$uniqID}.{$tempImage->extension}";
+                    $imageMediumPath = Yii::getAlias("@webroot/uploads/objects/{$imageMediumName}");
                     $imageMedium->save($imageMediumPath);
 
                     $imageSmall = Image::thumbnail($tempImagePath, 120, 120);
-                    $imageSmallPath = Yii::getAlias('@webroot/uploads/objects/' . uniqid('small_') . '.' . $tempImage->extension);
+                    $imageSmallName = "small_{$uniqID}.{$tempImage->extension}";
+                    $imageSmallPath = Yii::getAlias("@webroot/uploads/objects/{$imageSmallName}");
                     $imageSmall->save($imageSmallPath);
 
                     FileHelper::unlink($tempImagePath);
+                    
+                    $images[] = [
+                        'ObjectID' => $objectID,
+                        'Large' => $imageLargeName,
+                        'Medium' => $imageMediumName,
+                        'Small' => $imageSmallName,
+                        'IsMain' => 0,
+                    ];
                 } catch (Exception $ex) {}
             }
+            
+            $this->saveImages($images, $objectID);
         }
         
         $output = array('uploaded' => 'OK' );
         
         exit(json_encode($output));
+    }
+    
+    private function saveImages($images, $objectID)
+    {
+        if (count($images) > 0) {
+            $isMainImage = ObjectImage::find()->where(['IsMain' => 1, 'ObjectID' => $objectID])->count();
+            
+            if (!$isMainImage) {
+                $images[0]['IsMain'] = 1;
+            }
+            
+            foreach ($images as $image) {
+                $imageModel = new ObjectImage($image);
+                $imageModel->save();
+            }
+        }
     }
 
     /**
@@ -140,7 +184,7 @@ class ObjectController extends AdminController
      */
     protected function findModel($id)
     {
-        if (($model = Object::findOne($id)) !== null) {
+        if (($model = Object::find()->where(['ID' => $id])->limit(1)->with('objectImages')->one()) !== null) {
             return $model;
         }
 

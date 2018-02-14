@@ -8,7 +8,7 @@ use kartik\grid\ActionColumn as KartikActionColumn;
 class ActionColumn extends KartikActionColumn
 {
     
-    public $showViewButton = true;
+    public $showViewButton = false;
 
     public function init()
     {
